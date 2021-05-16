@@ -1,0 +1,18 @@
+--Start Virtual Environment
+    venv\Scripts\activate
+
+--End Virtual Environment
+    deactivate
+
+--Start FLASK
+    flask run
+
+--MySQL
+    Username: spurzack
+    Password: password
+
+    Username: root
+    Password password
+
+--Update Requirements Text
+    python -m pip freeze requirements.txt

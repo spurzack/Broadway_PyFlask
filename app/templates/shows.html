@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="col-md-6 offset-md-3">
+    <form name="showsforms" method="POST">
+        <div class="input-group"> 
+            <br><h1>{{ showsform.shows.label }}</h1>
+            <br><p>{{ showsform.shows() }}</p>
+            <p>{{ showsform.shows_submit() }}</p>
+            <img src="{{ url_for('shows_visualize') }}" class="graph-images">
+        </div>
+    </form>
+</div>
+
+{% endblock %}
