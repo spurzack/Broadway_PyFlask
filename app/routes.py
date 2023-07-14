@@ -8,15 +8,14 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from io import BytesIO
 import pandas as pd
-import mysql.connector
 import numpy as np
 from sqlalchemy import func
 
-cnx = mysql.connector.connect(user='root', password='password', database='Broadway_DB')
+# cnx = mysql.connector.connect(user='root', password='password', database='Broadway_DB')
 curA = cnx.cursor()
 curB = cnx.cursor()
 
-theatreid = 1 
+theatreid = 1
 showid = 1
 
 @app.route("/")
@@ -87,22 +86,22 @@ def shows():
 
         session['show_id'] = show['show_id']
 
-    
+
     return render_template("shows.html", title="Show Data", shows=True, showsform = showsform)
 
 @app.route("/shows_visualize")
 def shows_visualize():
-    
+
     if not session.get('show_id'):
         for u in db.session.query(Grosses).order_by(func.rand()).limit(1):
             random = u.__dict__
-        
+
         theatreid = random['theatre_id']
         showid = random['show_id']
 
 
     if session.get('show_id'):
-        
+
         showid = session.get('show_id')
         for u in db.session.query(Grosses).filter(Grosses.show_id == showid).order_by(func.rand()).limit(1):
             convert = u.__dict__
@@ -113,7 +112,7 @@ def shows_visualize():
     #     "SELECT weekly_gross/potential_gross from Grosses "
     #     "WHERE theatre_id = %d AND show_id = %d AND weekly_gross IS NOT NULL AND potential_gross IS NOT NULL "
     #     "order by performance_id asc") % (theatreid, showid)
-    
+
     # query2 = (
     #     "SELECT COUNT(performance_id) AS 'Weeks Performing', MIN(weekly_gross/potential_gross) AS Min, MAX(weekly_gross/potential_gross) AS Max, AVG(weekly_gross/potential_gross) AS Average from Grosses "
     #     "WHERE theatre_id = %d AND show_id = %d "
@@ -125,13 +124,13 @@ def shows_visualize():
         "SELECT pct_capacity from Grosses "
         "WHERE theatre_id = %d AND show_id = %d AND pct_capacity <> 0 "
         "order by performance_id asc") % (theatreid, showid)
-    
+
     query2 = (
         "SELECT COUNT(performance_id) AS 'Weeks Performing', MIN(pct_capacity) AS Min, MAX(pct_capacity) AS Max, AVG(pct_capacity) AS Average from Grosses "
         "WHERE theatre_id = %d AND show_id = %d AND pct_capacity <> 0 "
         "ORDER BY performance_id DESC "
         "Limit 5 ") % (theatreid, showid)
-    
+
     print("THEATRE ID: ", theatreid," SHOW ID: ", showid)
 
     # Get Graph Data Frames
@@ -173,24 +172,24 @@ def shows_visualize():
     plt.savefig(img2)
     img2.seek(0)
     plt.close()
-    
+
     return send_file(img2,mimetype='img/png')
 
 @app.route("/theatres_visualize")
 def theatres_visualize():
-      
-    
+
+
     if not session.get('theatre_id'):
         for u in db.session.query(Grosses).order_by(func.rand()).limit(1):
             random = u.__dict__
-        
+
         theatre_theatreid = random['theatre_id']
-        
+
 
     else:
         for u in db.session.query(Grosses).filter(Grosses.theatre_id == session.get('theatre_id')).limit(1):
             random = u.__dict__
-        
+
         theatre_theatreid = random['theatre_id']
 
     print("THEATRE ID: ", theatre_theatreid)
@@ -198,14 +197,14 @@ def theatres_visualize():
     query1 = (
         "SELECT AVG(weekly_gross/potential_gross) AS Avg from Grosses "
         "WHERE theatre_id = %d AND weekly_gross IS NOT NULL AND potential_gross IS NOT NULL ") % (theatre_theatreid)
-    
+
    # Only Used for Print
     query2 = (
         "SELECT show_name, MIN(weekly_gross/potential_gross) AS Min, MAX(weekly_gross/potential_gross) AS Max, AVG(weekly_gross/potential_gross) AS Avg from Grosses "
         "JOIN shows on shows.show_id = grosses.show_id "
         "WHERE theatre_id = %d AND weekly_gross IS NOT NULL AND potential_gross IS NOT NULL "
         "GROUP BY grosses.show_id "
-        "ORDER BY performance_id DESC ") % (theatre_theatreid)    
+        "ORDER BY performance_id DESC ") % (theatre_theatreid)
 
     # Get Graph Data Frames
     df1 = pd.read_sql_query(query1,cnx)
@@ -232,7 +231,7 @@ def theatres_visualize():
     plt.title(f"Theatre Average: {theatre_avg}")
     plt.xlabel("Average Potential")
     plt.ylabel("Show Name")
-        
+
 
     plt.xticks(np.arange(0,1.1,.1))
     plt.tight_layout()
@@ -241,22 +240,22 @@ def theatres_visualize():
     plt.savefig(img2)
     img2.seek(0)
     plt.close()
-    
+
     return send_file(img2,mimetype='img/png')
 
 # @app.route("/shows_visualize2")
 # def shows_visualize2():
-    
+
     if not session.get('show_id'):
         for u in db.session.query(Grosses).order_by(func.rand()).limit(1):
             random = u.__dict__
-        
+
         theatreid = random['theatre_id']
         showid = random['show_id']
 
 
     if session.get('show_id'):
-        
+
         showid = session.get('show_id')
         for u in db.session.query(Grosses).filter(Grosses.show_id == showid).order_by(func.rand()).limit(1):
             convert = u.__dict__
@@ -267,13 +266,13 @@ def theatres_visualize():
         "SELECT pct_capacity from Grosses "
         "WHERE theatre_id = %d AND show_id = %d AND pct_capacity <> 0 "
         "order by performance_id asc") % (theatreid, showid)
-    
+
     query4 = (
         "SELECT COUNT(performance_id) AS 'Weeks Performing', MIN(pct_capacity) AS Min, MAX(pct_capacity) AS Max, AVG(pct_capacity) AS Average from Grosses "
         "WHERE theatre_id = %d AND show_id = %d AND pct_capacity <> 0 "
         "ORDER BY performance_id DESC "
         "Limit 5 ") % (theatreid, showid)
-    
+
     print("THEATRE ID: ", theatreid," SHOW ID: ", showid)
 
     # Get Graph Data Frames
@@ -315,5 +314,5 @@ def theatres_visualize():
     plt.savefig(img2)
     img2.seek(0)
     plt.close()
-    
+
     return send_file(img2,mimetype='img/png')
